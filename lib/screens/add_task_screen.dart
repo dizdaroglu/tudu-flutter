@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:intl/intl.dart';
+
+import 'package:tudu_app/models/task.dart';
 
 class AddTaskScreen extends StatelessWidget {
   final Function addTaskCallBack;
@@ -9,8 +10,9 @@ class AddTaskScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String newText = "";
+    String newText;
     String newDate;
+    Color colorSelect;
 
     return Container(
       color: Color(0xff757575),
@@ -53,6 +55,7 @@ class AddTaskScreen extends StatelessWidget {
                     print('change $date');
                   }, onConfirm: (date) {
                     // DateFormat.yMMMMd().format
+
                     newDate = date.toString();
                   }, currentTime: DateTime.now(), locale: LocaleType.en);
                 },
@@ -60,9 +63,27 @@ class AddTaskScreen extends StatelessWidget {
                   'Select Date',
                   style: TextStyle(color: Color(0xff518AFF)),
                 )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                SelectCircle(Color(0xffFFEF62), (val) {
+                  colorSelect = val;
+                }),
+                SelectCircle(Color(0xffFF6098), (val) {
+                  colorSelect = val;
+                }),
+                SelectCircle(Color(0xff1DE9B6), (val) {
+                  colorSelect = val;
+                }),
+              ],
+            ),
             FlatButton(
               onPressed: () {
-                addTaskCallBack(newText, newDate);
+                addTaskCallBack(Task(
+                    title: newText,
+                    dateTime: newDate,
+                    isDone: false,
+                    isColor: colorSelect.value));
                 Navigator.pop(context);
               },
               child: Text(
@@ -78,5 +99,50 @@ class AddTaskScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class SelectCircle extends StatefulWidget {
+  final Color color;
+  final Function colorFunction;
+
+  SelectCircle(this.color, this.colorFunction);
+
+  @override
+  _SelectCircleState createState() => _SelectCircleState();
+}
+
+class _SelectCircleState extends State<SelectCircle> {
+  Color customColor;
+  bool _value = false;
+  Color selectColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: InkWell(
+      onTap: () {
+        selectColor = widget.color;
+        //  print(selectColor);
+        widget.colorFunction(selectColor);
+        setState(() {
+          _value = !_value;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(shape: BoxShape.circle, color: widget.color),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: _value
+              ? Icon(
+                  Icons.check,
+                  size: 30.0,
+                  color: Colors.white,
+                )
+              : Icon(Icons.check_box_outline_blank,
+                  size: 30.0, color: widget.color),
+        ),
+      ),
+    ));
   }
 }
